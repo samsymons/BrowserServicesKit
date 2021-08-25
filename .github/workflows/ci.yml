@@ -12,13 +12,10 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Checkout repository
+    - name: Check out repository and submodules
       uses: actions/checkout@v2
-
-    - name: Checkout submodules
-      uses: textbook/git-checkout-submodule-action@master
+      with:
+        submodules: recursive
 
     - name: Build
       run: swift build -v
