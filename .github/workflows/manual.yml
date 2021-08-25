@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build Framework:
+  release:
 
     runs-on: macos-11
 
