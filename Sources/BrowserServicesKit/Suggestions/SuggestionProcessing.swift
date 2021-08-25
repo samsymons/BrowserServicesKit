@@ -61,7 +61,7 @@ final class SuggestionProcessing {
                                                    maximum: maximumOfNavigationalSuggestions)
 
         // Split the Top Hits and the History and Bookmarks section
-        let topHits = topHits(from: navigationalSuggestions)
+        let topHits = self.topHits(from: navigationalSuggestions)
         let historyAndBookmarkSuggestions = Array(navigationalSuggestions.dropFirst(topHits.count).filter { suggestion in
             switch suggestion {
             case .bookmark, .historyEntry:
@@ -110,7 +110,7 @@ final class SuggestionProcessing {
             // Sort according to the score
             .sorted { $0.score > $1.score }
             // Create suggestion array
-            .compactMap { 
+            .compactMap {
                 switch $0.item {
                 case let bookmark as Bookmark:
                     return Suggestion(bookmark: bookmark)
