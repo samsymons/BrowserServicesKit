@@ -52,16 +52,13 @@ public enum EmailManagerWaitlistState {
     case inBeta
 }
 
-// swiftlint:disable identifier_name
 public protocol EmailManagerAliasPermissionDelegate: AnyObject {
 
     func emailManager(_ emailManager: EmailManager,
                       didRequestPermissionToProvideAliasWithCompletion: @escaping (EmailManagerPermittedAddressType) -> Void)
 
 }
-// swiftlint:enable identifier_name
 
-// swiftlint:disable function_parameter_count
 public protocol EmailManagerRequestDelegate: AnyObject {
     func emailManager(_ emailManager: EmailManager,
                       requested url: URL,
@@ -72,7 +69,6 @@ public protocol EmailManagerRequestDelegate: AnyObject {
                       timeoutInterval: TimeInterval,
                       completion: @escaping (Data?, Error?) -> Void)
 }
-// swiftlint:enable function_parameter_count
 
 public extension Notification.Name {
     static let emailDidSignIn = Notification.Name("com.duckduckgo.browserServicesKit.EmailDidSignIn")
@@ -111,7 +107,7 @@ public struct EmailUrls {
     var getInviteCodeAPI: URL {
         return URL(string: Url.getInviteCode)!
     }
-    
+
     public init() { }
 }
 
@@ -119,16 +115,16 @@ public typealias AliasCompletion = (String?, AliasRequestError?) -> Void
 public typealias UsernameAndAliasCompletion = (_ username: String?, _ alias: String?, AliasRequestError?) -> Void
 
 public class EmailManager {
-    
+
     private static let emailDomain = "duck.com"
-    
+
     private let storage: EmailManagerStorage
     public weak var aliasPermissionDelegate: EmailManagerAliasPermissionDelegate?
     public weak var requestDelegate: EmailManagerRequestDelegate?
-    
+
     private lazy var emailUrls = EmailUrls()
     private lazy var aliasAPIURL = emailUrls.emailAliasAPI
-    
+
     private var username: String? {
         storage.getUsername()
     }
@@ -177,16 +173,16 @@ public class EmailManager {
 
         return .notJoinedQueue
     }
-    
+
     public var userEmail: String? {
         guard let username = username else { return nil }
         return username + "@" + EmailManager.emailDomain
     }
-    
+
     public init(storage: EmailManagerStorage = EmailKeychainManager()) {
         self.storage = storage
     }
-    
+
     public func signOut() {
         storage.deleteAuthenticationState()
         NotificationCenter.default.post(name: .emailDidSignOut, object: self)
@@ -223,25 +219,25 @@ extension EmailManager: AutofillEmailDelegate {
             completionHandler(self.username, alias, nil)
         }
     }
-    
+
     public func autofillUserScript(_: AutofillUserScript,
                                    didRequestAliasAndRequiresUserPermission requiresUserPermission: Bool,
                                    shouldConsumeAliasIfProvided: Bool,
                                    completionHandler: @escaping AliasCompletion) {
-            
+
         getAliasIfNeeded { [weak self] newAlias, error in
             guard let newAlias = newAlias, error == nil, let self = self else {
                 completionHandler(nil, error)
                 return
             }
-            
+
             if requiresUserPermission {
                 guard let delegate = self.aliasPermissionDelegate else {
                     assertionFailure("EmailUserScript requires permission to provide Alias")
                     completionHandler(nil, .permissionDelegateNil)
                     return
                 }
-                
+
                 delegate.emailManager(self, didRequestPermissionToProvideAliasWithCompletion: { [weak self] permissionType in
                     switch permissionType {
                     case .user:
@@ -267,11 +263,11 @@ extension EmailManager: AutofillEmailDelegate {
             }
         }
     }
-    
+
     public func autofillUserScriptDidRequestRefreshAlias(_: AutofillUserScript) {
         self.consumeAliasAndReplace()
     }
-    
+
     public func autofillUserScript(_ : AutofillUserScript, didRequestStoreToken token: String, username: String, cohort: String?) {
         storeToken(token, username: username, cohort: cohort)
         NotificationCenter.default.post(name: .emailDidSignIn, object: self)
@@ -290,25 +286,25 @@ private extension EmailManager {
 // MARK: - Alias Management
 
 private extension EmailManager {
-    
+
     struct EmailAliasResponse: Decodable {
         let address: String
     }
-    
+
     typealias HTTPHeaders = [String: String]
-    
+
     var emailHeaders: HTTPHeaders {
         guard let token = token else {
             return [:]
         }
         return ["Authorization": "Bearer " + token]
     }
-    
+
     func consumeAliasAndReplace() {
         storage.deleteAlias()
         fetchAndStoreAlias()
     }
-    
+
     func getAliasIfNeeded(timeoutInterval: TimeInterval = 4.0, completionHandler: @escaping AliasCompletion) {
         if let alias = alias {
             completionHandler(alias, nil)
@@ -345,7 +341,7 @@ private extension EmailManager {
             completionHandler?(nil, .signedOut)
             return
         }
-        
+
         requestDelegate?.emailManager(self,
                                       requested: aliasAPIURL,
                                       method: "POST",

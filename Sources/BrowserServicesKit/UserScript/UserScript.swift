@@ -19,6 +19,7 @@
 
 import WebKit
 
+
 public protocol UserScript: WKScriptMessageHandler {
 
     var source: String { get }
@@ -30,6 +31,7 @@ public protocol UserScript: WKScriptMessageHandler {
     func makeWKUserScript() -> WKUserScript
 
 }
+
 
 extension UserScript {
 
