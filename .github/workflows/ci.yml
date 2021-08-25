@@ -17,6 +17,9 @@ jobs:
       with:
         submodules: recursive
 
+    - name: SwiftLint
+      run: swiftlint
+
     - name: Build
       run: swift build -v
 
