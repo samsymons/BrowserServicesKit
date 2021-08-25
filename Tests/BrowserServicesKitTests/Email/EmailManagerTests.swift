@@ -65,12 +65,12 @@ class EmailManagerTests: XCTestCase {
     func testWhenSignOutThenDeletesAllStorage() {
         let storage = MockEmailManagerStorage()
         let emailManager = EmailManager(storage: storage)
-        
+
         let expect = expectation(description: "test")
         storage.deleteAuthenticationStateCallback = {
             expect.fulfill()
         }
-        
+
         emailManager.signOut()
         waitForExpectations(timeout: 1.0, handler: nil)
     }
@@ -95,7 +95,7 @@ class EmailManagerTests: XCTestCase {
     }
 
     func testWhenCallingGetAliasEmailWithAliasStoredThenAliasReturnedAndNewAliasFetched() {
-        
+
         let expect = expectation(description: "test")
         let storage = storageForGetAliasTest(signedIn: true, storedAlias: true, fulfillOnFirstStorageEvent: true, expectationToFulfill: expect)
         let emailManager = EmailManager(storage: storage)
@@ -104,7 +104,7 @@ class EmailManagerTests: XCTestCase {
         emailManager.requestDelegate = requestDelegate
 
         events.removeAll()
-        
+
         // When an alias is stored
         // should call completion with stored alias
         // then delete alias
@@ -116,19 +116,19 @@ class EmailManagerTests: XCTestCase {
             .aliasRequestMade,
             .storeAliasCalled
         ]
-                
+
         emailManager.getAliasIfNeededAndConsume { alias, _ in
             XCTAssertEqual(alias, "testAlias1")
             events.append(.getAliasCallbackCalled)
         }
-        
+
         waitForExpectations(timeout: 1.0) { _ in
             XCTAssertEqual(events, expectedEvents)
         }
     }
-    
+
     func testWhenCallingGetAliasEmailWithNoAliasStoredThenAliasFetchedAndNewAliasFetched() {
-        
+
         let expect = expectation(description: "test")
         let storage = storageForGetAliasTest(signedIn: true, storedAlias: false, fulfillOnFirstStorageEvent: false, expectationToFulfill: expect)
         let emailManager = EmailManager(storage: storage)
@@ -137,13 +137,13 @@ class EmailManagerTests: XCTestCase {
         emailManager.requestDelegate = requestDelegate
 
         events.removeAll()
-        
+
         // Test when no alias is stored
         // should make a request
         // call the callback
         // make a new request
         // and store the new alias
-        
+
         let expectedEvents: [EmailManagerTestEvent] = [
             .aliasRequestMade,
             .storeAliasCalled,
@@ -152,17 +152,17 @@ class EmailManagerTests: XCTestCase {
             .aliasRequestMade,
             .storeAliasCalled
         ]
-        
+
         emailManager.getAliasIfNeededAndConsume { alias, _ in
             XCTAssertEqual(alias, "testAlias2")
             events.append(.getAliasCallbackCalled)
         }
-        
+
         waitForExpectations(timeout: 1.0) { _ in
             XCTAssertEqual(events, expectedEvents)
         }
     }
-    
+
     func testWhenCallingGetAliasWhenSignedOutThenNoAliasReturned() {
         let expect = expectation(description: "test")
         let storage = storageForGetAliasTest(signedIn: false, storedAlias: false, fulfillOnFirstStorageEvent: false, expectationToFulfill: expect)
@@ -176,19 +176,19 @@ class EmailManagerTests: XCTestCase {
         let expectedEvents: [EmailManagerTestEvent] = [
             .getAliasCallbackCalled
         ]
-        
+
         emailManager.getAliasIfNeededAndConsume { alias, error in
             XCTAssertNil(alias)
             XCTAssertEqual(error, .signedOut)
             events.append(.getAliasCallbackCalled)
             expect.fulfill()
         }
-        
+
         waitForExpectations(timeout: 1.0) { _ in
             XCTAssertEqual(events, expectedEvents)
         }
     }
-    
+
     func testWhenStoreTokenThenRequestForAliasMade() {
         let expect = expectation(description: "test")
         let storage = storageForGetAliasTest(signedIn: true, storedAlias: false, fulfillOnFirstStorageEvent: true, expectationToFulfill: expect)
@@ -196,7 +196,7 @@ class EmailManagerTests: XCTestCase {
         let requestDelegate = MockEmailManagerRequestDelegate()
         requestDelegate.mockAliases = ["testAlias2", "testAlias3"]
         emailManager.requestDelegate = requestDelegate
-        
+
         events.removeAll()
 
         let expectedEvents: [EmailManagerTestEvent] = [
@@ -204,9 +204,9 @@ class EmailManagerTests: XCTestCase {
             .aliasRequestMade,
             .storeAliasCalled
         ]
-        
+
         emailManager.autofillUserScript(AutofillUserScript(), didRequestStoreToken: "token", username: "username", cohort: "internal_beta")
-        
+
         waitForExpectations(timeout: 1.0) { _ in
             XCTAssertEqual(events, expectedEvents)
         }
@@ -307,7 +307,7 @@ class EmailManagerTests: XCTestCase {
     }
 
     func testWhenCallingJoinWaitlistThenTokenAndTimestampAreStoredAndReturned() {
-        let expectation = expectation(description: #function)
+        let exp = expectation(description: #function)
         let storage = storageForWaitlistTest(joinedWaitlist: false, hasInviteCode: false)
         let manager = EmailManager(storage: storage)
         let requestDelegate = MockEmailManagerRequestDelegate()
@@ -332,7 +332,7 @@ class EmailManagerTests: XCTestCase {
                 XCTFail("joinWaitlist should not fail")
             }
 
-            expectation.fulfill()
+            exp.fulfill()
         }
 
         waitForExpectations(timeout: 1.0) { _ in
@@ -343,7 +343,7 @@ class EmailManagerTests: XCTestCase {
     }
 
     func testWhenCallingFetchInviteCodeIfNeededAndInviteCodeAlreadyExistsThenErrorIsReturned() {
-        let expectation = expectation(description: #function)
+        let exp = expectation(description: #function)
         let storage = storageForWaitlistTest(joinedWaitlist: true, hasInviteCode: true)
         let manager = EmailManager(storage: storage)
         let requestDelegate = MockEmailManagerRequestDelegate()
@@ -363,7 +363,7 @@ class EmailManagerTests: XCTestCase {
                 XCTAssertEqual(error, .codeAlreadyExists)
             }
 
-            expectation.fulfill()
+            exp.fulfill()
         }
 
         waitForExpectations(timeout: 1.0) { _ in
@@ -372,7 +372,7 @@ class EmailManagerTests: XCTestCase {
     }
 
     func testWhenCallingFetchInviteCodeIfNeededAndNoWaitlistDataExistsThenErrorIsReturned() {
-        let expectation = expectation(description: #function)
+        let exp = expectation(description: #function)
         let storage = storageForWaitlistTest(joinedWaitlist: false, hasInviteCode: false)
         let manager = EmailManager(storage: storage)
         let requestDelegate = MockEmailManagerRequestDelegate()
@@ -392,7 +392,7 @@ class EmailManagerTests: XCTestCase {
                 XCTAssertEqual(error, .notOnWaitlist)
             }
 
-            expectation.fulfill()
+            exp.fulfill()
         }
 
         waitForExpectations(timeout: 1.0) { _ in
@@ -401,7 +401,7 @@ class EmailManagerTests: XCTestCase {
     }
 
     func testWhenCallingFetchInviteCodeIfNeededAndInviteCodeIsNotReadyThenErrorIsReturned() {
-        let expectation = expectation(description: #function)
+        let exp = expectation(description: #function)
         let storage = storageForWaitlistTest(joinedWaitlist: true, waitlistTimestamp: Int.max, hasInviteCode: false)
         let manager = EmailManager(storage: storage)
         let requestDelegate = MockEmailManagerRequestDelegate()
@@ -428,7 +428,7 @@ class EmailManagerTests: XCTestCase {
                 XCTAssertEqual(error, .noCodeAvailable)
             }
 
-            expectation.fulfill()
+            exp.fulfill()
         }
 
         waitForExpectations(timeout: 1.0) { _ in
@@ -437,7 +437,7 @@ class EmailManagerTests: XCTestCase {
     }
 
     func testWhenCallingFetchInviteCodeIfNeededAndInviteCodeIsReadyThenInviteCodeIsReturned() {
-        let expectation = expectation(description: #function)
+        let exp = expectation(description: #function)
         let storage = storageForWaitlistTest(joinedWaitlist: true, waitlistTimestamp: 1, hasInviteCode: false)
         let manager = EmailManager(storage: storage)
         let requestDelegate = MockEmailManagerRequestDelegate()
@@ -466,7 +466,7 @@ class EmailManagerTests: XCTestCase {
                 XCTFail()
             }
 
-            expectation.fulfill()
+            exp.fulfill()
         }
 
         waitForExpectations(timeout: 1.0) { _ in
@@ -478,26 +478,26 @@ class EmailManagerTests: XCTestCase {
                                         storedAlias: Bool,
                                         fulfillOnFirstStorageEvent: Bool,
                                         expectationToFulfill: XCTestExpectation) -> MockEmailManagerStorage {
-        
+
         let storage = MockEmailManagerStorage()
-        
+
         if signedIn {
             storage.mockUsername = "username"
             storage.mockToken = "testToken"
         }
-        
+
         if storedAlias {
             storage.mockAlias = "testAlias1"
         }
-        
+
         storage.deleteAliasCallback = {
             events.append(.deleteAliasCalled)
         }
-        
+
         storage.storeTokenCallback = { _, _, _ in
             events.append(.storeTokenCalled)
         }
-                        
+
         var isFirstStorage = true
         storage.storeAliasCallback = { alias in
             events.append(.storeAliasCalled)
@@ -551,7 +551,7 @@ class MockEmailManagerRequestDelegate: EmailManagerRequestDelegate {
 
     var mockAliases: [String] = []
     var waitlistTimestamp: Int = 1
-    
+
     // swiftlint:disable function_parameter_count
     func emailManager(_ emailManager: EmailManager,
                       requested url: URL,
@@ -607,7 +607,7 @@ class MockEmailManagerRequestDelegate: EmailManagerRequestDelegate {
         let data = jsonString.data(using: .utf8)!
         completion(data, nil)
     }
-    
+
 }
 
 class MockEmailManagerStorage: EmailManagerStorage {
@@ -627,15 +627,15 @@ class MockEmailManagerStorage: EmailManagerStorage {
     var storeWaitlistTimestampCallback: ((Int) -> Void)?
     var storeWaitlistInviteCodeCallback: ((String) -> Void)?
     var deleteWaitlistStateCallback: (() -> Void)?
-    
+
     func getUsername() -> String? {
         return mockUsername
     }
-    
+
     func getToken() -> String? {
         return mockToken
     }
-    
+
     func getAlias() -> String? {
         return mockAlias
     }
@@ -643,19 +643,19 @@ class MockEmailManagerStorage: EmailManagerStorage {
     func getCohort() -> String? {
         return mockCohort
     }
-    
+
     func store(token: String, username: String, cohort: String?) {
         storeTokenCallback?(token, username, cohort)
     }
-    
+
     func store(alias: String) {
         storeAliasCallback?(alias)
     }
-    
+
     func deleteAlias() {
         deleteAliasCallback?()
     }
-    
+
     func deleteAuthenticationState() {
         deleteAuthenticationStateCallback?()
     }
