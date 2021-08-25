@@ -17,7 +17,7 @@ then
 	cd ${WORKING_DIRECTORY}
 fi
 
-changedFiles=$(git --no-pager diff --name-only --relative main -- '*.swift')
+changedFiles=$(git --no-pager diff --name-only --relative FETCH_HEAD $(git merge-base FETCH_HEAD github.base_ref) -- '*.swift')
 
 if [ -z "$changedFiles" ]
 then
