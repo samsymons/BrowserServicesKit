@@ -17,6 +17,11 @@ jobs:
       with:
         submodules: recursive
 
+    - name: SwiftLint (only changed files)
+      uses: norio-nomura/action-swiftlint@3.2.1
+      env:
+        DIFF_BASE: ${{ github.base_ref }}
+
     - name: Build
       run: swift build -v
 
