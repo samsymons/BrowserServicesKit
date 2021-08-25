@@ -1,0 +1,22 @@
+name: Manual Workflow
+
+jobs:
+  Build Framework:
+
+    runs-on: macos-11
+
+    steps:
+    - name: Check out repository and submodules
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        fetch-depth: 2
+
+    - name: SwiftLint
+      run: ./swiftlint.sh
+
+    - name: Build
+      run: swift build -v
+
+    - name: Run tests
+      run: swift test -v
